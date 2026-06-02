@@ -1,0 +1,14 @@
+{
+  "autoload": {
+    "psr-4": {
+      "BitskiWPCF7Booking\\": "src/"
+    }
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^4.0"
+  },
+  "scripts": {
+    "lint": "./vendor/bin/phpcs",
+    "lint:fix": "./vendor/bin/phpcbf || true"
+  }
+}

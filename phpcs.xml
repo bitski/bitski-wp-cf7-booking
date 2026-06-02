@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<ruleset name="bitski-wp-cf7-booking">
+    <description>PSR-12 coding standards for bitski-wp-cf7-booking</description>
+
+    <!-- Global arguments -->
+    <arguments>
+        <arg name="encoding" value="utf-8"/>
+        <arg name="tab-width" value="4"/>
+        <arg name="report" value="full"/>
+        <arg name="extensions" value="php,css,scss"/>
+        <arg name="parallel" value="4"/>
+    </arguments>
+
+    <!-- Files to check -->
+    <file>.</file>
+
+    <!-- PSR-12 standards -->
+    <rule ref="PSR12"/>
+
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>**/*.min.*</exclude-pattern>
+</ruleset>

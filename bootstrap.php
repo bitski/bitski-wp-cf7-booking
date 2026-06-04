@@ -54,8 +54,9 @@ $bootstrap_classes = [
  * @var array $conditional_class_map
  */
 $conditional_class_map = [
-    'bitski-wp-cf7-booking/option/assets/load'    => \BitskiWPCF7Booking\assets\AssetsLoader::class,
-    'bitski-wp-cf7-booking/option/rest/api/load'  => \BitskiWPCF7Booking\rest\Api::class,
+    'bitski-wp-cf7-booking/option/assets/load'                 => \BitskiWPCF7Booking\assets\AssetsLoader::class,
+    'bitski-wp-cf7-booking/option/rest/api/load'               => \BitskiWPCF7Booking\rest\Api::class,
+    'bitski-wp-cf7-booking/option/integration/cf7adapter/load' => \BitskiWPCF7Booking\integration\CF7Adapter::class,
 ];
 
 /**

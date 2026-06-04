@@ -27,19 +27,19 @@ class Config
         // Example: 'option-name' => 'global-value'
 
         // Admin settings page
-        'bitski-wp-cf7-booking/option/admin/load'                       => true,
+        'bitski-wp-cf7-booking/option/admin/load'                  => true,
 
         // AssetsLoader
-        'bitski-wp-cf7-booking/option/assets/load'                      => false,
+        'bitski-wp-cf7-booking/option/assets/load'                 => false,
 
         // Example REST feature
-        'bitski-wp-cf7-booking/option/example-rest-feature'             => false,
+        'bitski-wp-cf7-booking/option/example-rest-feature'        => false,
 
         // REST API options
-        'bitski-wp-cf7-booking/option/rest/api/load'                    => true,
+        'bitski-wp-cf7-booking/option/rest/api/load'               => true,
 
-        // Integration with external plugins or modules - example adapter
-        'bitski-wp-cf7-booking/option/integration/example-adapter/load' => false,
+        // Integration with CF7 plugin
+        'bitski-wp-cf7-booking/option/integration/cf7adapter/load' => true,
 
         // Add more option filters as needed.
     ];

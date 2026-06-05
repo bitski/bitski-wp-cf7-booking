@@ -12,7 +12,7 @@
  * Author: Peter Eckerle
  * Author URI: https://bitski.de
  * Description: Slim WordPress plugin integrating PHP OOP principles.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires at least: 6.6
  * Requires PHP: 7.4
  * License: GNU General Public License v3.0 or later
@@ -26,7 +26,7 @@ define('BITSKI_WP_CF7_BOOKING_FILE', __FILE__);
 define('BITSKI_WP_CF7_BOOKING_PATH', plugin_dir_path(BITSKI_WP_CF7_BOOKING_FILE));
 define('BITSKI_WP_CF7_BOOKING_URL', plugin_dir_url(BITSKI_WP_CF7_BOOKING_FILE));
 define('BITSKI_WP_CF7_BOOKING_SLUG', 'bitski-wp-cf7-booking');
-define('BITSKI_WP_CF7_BOOKING_VERSION', '0.1.0');
+define('BITSKI_WP_CF7_BOOKING_VERSION', '0.1.1');
 
 // Loads the plugin bootstrap file.
 if (file_exists(__DIR__ . '/bootstrap.php')) {

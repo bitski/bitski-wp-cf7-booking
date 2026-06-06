@@ -61,13 +61,19 @@ $conditional_class_map = [
 /**
  * Array of conditional integration classes that are only initialized if the corresponding plugin option is enabled.
  *
- * Each entry maps a filter name to the class that should be instantiated.
+ * Each entry maps a filter name to a class and optional dependencies to be injected into its constructor.
  * Filter keys enable/disable optional plugin features via plugin options.
  *
  * @var array $integration_class_map
  */
 $integration_class_map = [
-    'bitski-wp-cf7-booking/option/integration/cf7adapter/load' => \BitskiWPCF7Booking\integration\CF7Adapter::class,
+    'bitski-wp-cf7-booking/option/integration/cf7adapter/load' =>
+        [
+            'class' => \BitskiWPCF7Booking\integration\CF7Adapter::class,
+            'dependencies' => [
+                \BitskiWPCF7Booking\application\BookingService::class,
+            ]
+        ]
 ];
 
 /**
@@ -115,12 +121,22 @@ foreach ($conditional_class_map as $option_key => $class) {
 
 /**
  * Instantiates and initializes conditional integration classes based on plugin option filters.
+ *
+ * Adds dependencies to the class constructor if they are defined in the integration_class_map.
  */
 add_action('plugins_loaded', static function () use ($integration_class_map) {
-    foreach ($integration_class_map as $option_key => $class) {
+    foreach ($integration_class_map as $option_key => $definition) {
         if (\BitskiWPCF7Booking\core\Options::get($option_key)) {
             try {
-                $instance = new $class();
+                $class = $definition['class'];
+                $dependencies = $definition['dependencies'] ?? [];
+                $dependency_instances = [];
+
+                foreach ($dependencies as $dependency) {
+                    $dependency_instances[] = new $dependency();
+                }
+
+                $instance = new $class(...$dependency_instances);
                 if (method_exists($instance, 'init')) {
                     $instance->init();
                 }

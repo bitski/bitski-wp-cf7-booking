@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ongoing maintenance and internal improvements
 
+## [0.2.0] - 2026-06-08
+
+### Added
+
+- Reservation domain entity with core properties:
+  `name`, `phone`, `email`, `startAt`, `durationMinutes`, `guestCount`, `message`
+- Domain layer foundation for BookingService integration (Phase 2.1 + 2.2
+
 ## [0.1.0] - 2026-05-29
 
 ### Added

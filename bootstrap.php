@@ -72,6 +72,7 @@ $integration_class_map = [
             'class' => \BitskiWPCF7Booking\integration\CF7Adapter::class,
             'dependencies' => [
                 \BitskiWPCF7Booking\application\BookingService::class,
+                \BitskiWPCF7Booking\integration\dev\MailGuard::class,
             ]
         ]
 ];

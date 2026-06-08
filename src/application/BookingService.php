@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Booking service.
+ *
+ * @since 0.2.1
+ */
 namespace BitskiWPCF7Booking\application;
 
 use BitskiWPCF7Booking\domain\Reservation;

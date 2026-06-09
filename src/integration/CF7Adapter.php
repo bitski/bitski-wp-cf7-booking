@@ -10,7 +10,10 @@
 
 namespace BitskiWPCF7Booking\integration;
 
+use WPCF7_Submission;
+
 use BitskiWPCF7Booking\application\BookingService;
+use BitskiWPCF7Booking\domain\Reservation;
 
 class CF7Adapter extends Adapter
 {
@@ -22,8 +25,6 @@ class CF7Adapter extends Adapter
     protected string $dependencyClass = 'WPCF7';
 
     /**
-     * Injects dependencies for the CF7Adapter.
-     *
      * @param  BookingService  $bookingService
      *
      * @since 0.1.2
@@ -32,7 +33,6 @@ class CF7Adapter extends Adapter
     {
         $this->bookingService = $bookingService;
         error_log('CF7Adapter constructor called');
-        error_log('BookingService injected: ' . ($bookingService instanceof BookingService ? 'true' : 'false'));
     }
 
     /**
@@ -40,22 +40,32 @@ class CF7Adapter extends Adapter
      */
     protected function registerHooks(): void
     {
-        add_action('wpcf7_before_send_mail', [$this, 'handleBookingRequest']);
-        add_filter('wpcf7_posted_data', [$this, 'captureFormPayload']);
+        add_action('wpcf7_before_send_mail', [$this, 'handleBookingRequest'], 10, 3);
     }
 
     /**
+     * Handles the booking request before sending the email.
+     *
      * @since 0.1.2
      */
-    public function handleBookingRequest()
+    public function handleBookingRequest($contactForm, bool &$abort, WPCF7_Submission $submission)
     {
         error_log('Booking request received');
+        /**
+         * Retrieves the form submission data from the WPCF7_Submission singleton.
+         * Maps the CF7 form payload to a Reservation object and passes it to the BookingService.
+         */
+        $payload     = $submission->get_posted_data();
+        $reservation = $this->mapToReservation($payload);
+
+        return $this->bookingService->book($reservation);
     }
 
     /**
-     * @since 0.1.2
+     * Maps the CF7 form payload to a Reservation domain object.
+     * Ensures the Reservation object is correctly populated with form data.
      */
-    public function captureFormPayload() {
-
+    public function mapToReservation(array $payload): Reservation
+    {
     }
 }

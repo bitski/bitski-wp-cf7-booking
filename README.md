@@ -7,7 +7,7 @@
 
 OOP-driven, modular WordPress plugin with PSR-4 autoloading and REST integration layer.
 
-v0.2.1 | GPL v3+
+v0.2.2 | GPL v3+
 
 ## Disclaimer
 

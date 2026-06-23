@@ -11,7 +11,7 @@
 namespace BitskiWPCF7Booking\integration;
 
 use DateTimeImmutable;
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use WPCF7_Submission;
 
 use BitskiWPCF7Booking\application\BookingService;

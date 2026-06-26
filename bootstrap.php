@@ -124,6 +124,10 @@ foreach ($conditional_class_map as $option_key => $class) {
  * Instantiates and initializes conditional integration classes based on plugin option filters.
  *
  * Adds dependencies to the class constructor if they are defined in the integration_class_map.
+ * Allows simple manual dependency injection for classes that require specific dependencies,
+ * including limited nested dependencies (e.g. BookingService requires a ReservationRepository).
+ *
+ * Dependency wiring is handled centrally in the bootstrap.
  */
 add_action('plugins_loaded', static function () use ($integration_class_map) {
     foreach ($integration_class_map as $option_key => $definition) {
@@ -134,6 +138,14 @@ add_action('plugins_loaded', static function () use ($integration_class_map) {
                 $dependency_instances = [];
 
                 foreach ($dependencies as $dependency) {
+                    if ($dependency === \BitskiWPCF7Booking\application\BookingService::class) {
+                        $reservation_repository = new \BitskiWPCF7Booking\infrastructure\ReservationRepository();
+
+                        $dependency_instances[] = new $dependency($reservation_repository);
+
+                        continue;
+                    }
+
                     $dependency_instances[] = new $dependency();
                 }
 

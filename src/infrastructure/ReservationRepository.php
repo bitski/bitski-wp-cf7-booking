@@ -8,6 +8,8 @@
 
 namespace BitskiWPCF7Booking\infrastructure;
 
+use DateTimeImmutable;
+
 use BitskiWPCF7Booking\domain\Reservation;
 
 class ReservationRepository
@@ -37,5 +39,29 @@ class ReservationRepository
         $result = $wpdb->insert($tableName, $data);
 
         return (bool)$result;
+    }
+
+    /**
+     * Finds overlapping reservations in the database.
+     * Returns an array of reservation objects.
+     *
+     * @since 0.3.4
+     */
+    public function findOverlappingReservations(DateTimeImmutable $startAt, DateTimeImmutable $endAt): array
+    {
+        global $wpdb;
+
+        $tableName = $wpdb->prefix . BITSKI_WP_CF7_BOOKING_TABLE_RESERVATIONS;
+
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$tableName} WHERE
+            start_at <= %s
+            AND DATE_ADD(start_at, INTERVAL duration_minutes MINUTE) >= %s
+        ",
+            $endAt->format('Y-m-d H:i:s'),
+            $startAt->format('Y-m-d H:i:s')
+        );
+
+        return $wpdb->get_results($sql);
     }
 }

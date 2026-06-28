@@ -95,7 +95,9 @@ class Lifecycle
             guest_count INT NOT NULL,
             message TEXT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)           
+            
+            PRIMARY KEY (id),
+            KEY start_at (start_at)           
         ) $charsetCollate;";
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

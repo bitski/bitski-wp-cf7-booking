@@ -23,7 +23,7 @@ $_SERVER['SERVER_PORT'] = '80';
 /**
  * Loads WordPress.
  */
-$wp_load_path = dirname(__DIR__) . '../../../../wp-load.php';
+$wp_load_path = dirname(__DIR__) . '/../../../wp-load.php';
 if ( ! file_exists($wp_load_path)) {
     throw new RuntimeException('wp-load.php could not be found at ' . $wp_load_path);
 }

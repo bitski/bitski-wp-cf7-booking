@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BitskiWPCF7Booking\tests\integration\infrastructure;
+namespace BitskiWPCF7Booking\Tests\integration\infrastructure;
 
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;

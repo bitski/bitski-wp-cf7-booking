@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Reservation repository.
  *

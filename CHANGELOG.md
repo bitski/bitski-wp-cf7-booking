@@ -9,6 +9,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ongoing maintenance and internal improvements
 
+## [0.4.0] - 2026-07-05
+
+### Added
+
+- CapacityManager for reservation capacity checks in the domain layer
+- Integration test coverage for multiple overlapping reservations
+
+## [0.3.0] - 2026-06-24
+
+### Added
+
+- ReservationRepository infrastructure foundation
+- Reservations database table lifecycle
+- Manual dependency wiring between BookingService and ReservationRepository
+- Reservation persistence through BookingService
+- `save()` method for storing reservations
+- `findOverlappingReservations()` method for detecting reservation overlaps
+- Database index on `start_at` for reservation lookup performance
+- PHPUnit integration test setup and bootstrap
+- ReservationRepository integration test infrastructure
+
+### Fixed
+
+- Corrected WordPress bootstrap path for integration tests
+- Corrected `InvalidArgumentException` import in CF7Adapter
+
+
 ## [0.2.0] - 2026-06-08
 
 ### Added

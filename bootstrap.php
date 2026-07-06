@@ -140,8 +140,9 @@ add_action('plugins_loaded', static function () use ($integration_class_map) {
                 foreach ($dependencies as $dependency) {
                     if ($dependency === \BitskiWPCF7Booking\application\BookingService::class) {
                         $reservation_repository = new \BitskiWPCF7Booking\infrastructure\ReservationRepository();
+                        $capacity_manager = new \BitskiWPCF7Booking\domain\CapacityManager():
 
-                        $dependency_instances[] = new $dependency($reservation_repository);
+                        $dependency_instances[] = new $dependency($reservation_repository, $capacity_manager);
 
                         continue;
                     }

@@ -7,6 +7,7 @@
 
 namespace BitskiWPCF7Booking\infrastructure;
 
+use DateMalformedStringException;
 use DateTimeImmutable;
 
 use BitskiWPCF7Booking\domain\Reservation;
@@ -44,6 +45,7 @@ class ReservationRepository
      * Finds overlapping reservations in the database.
      * Returns an array of reservation objects.
      *
+     * @throws DateMalformedStringException
      * @since 0.3.4
      */
     public function findOverlappingReservations(DateTimeImmutable $startAt, DateTimeImmutable $endAt): array
@@ -61,6 +63,22 @@ class ReservationRepository
             $startAt->format('Y-m-d H:i:s')
         );
 
-        return $wpdb->get_results($sql);
+        $result = $wpdb->get_results($sql);
+
+        $overlappingReservations = [];
+
+        foreach ($result as $reservation) {
+            $overlappingReservations[] = new Reservation(
+                name: $reservation->name,
+                phone: $reservation->phone,
+                email: $reservation->email,
+                startAt: new DateTimeImmutable($reservation->start_at),
+                durationMinutes: $reservation->duration_minutes,
+                guestCount: $reservation->guest_count,
+                message: $reservation->message
+            );
+        }
+
+        return $overlappingReservations;
     }
 }

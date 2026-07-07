@@ -7,6 +7,10 @@
 
 namespace BitskiWPCF7Booking\application;
 
+use DateInterval;
+use DateTimeImmutable;
+use Exception;
+
 use BitskiWPCF7Booking\domain\CapacityManager;
 use BitskiWPCF7Booking\domain\Reservation;
 use BitskiWPCF7Booking\infrastructure\ReservationRepository;
@@ -27,16 +31,21 @@ class BookingService
         $this->capacityManager = $capacityManager;
     }
 
+    /**
+     * @throws Exception
+     */
     public function book(Reservation $reservation): bool
     {
-        if ( ! $this->accept($reservation)) {
+        $endAt = $reservation->getStartAt()->add(new DateInterval('PT' . $reservation->getDurationMinutes() . 'M'));
+
+        if ( ! $this->accept($reservation, $endAt)) {
             return false;
         }
 
         return $this->reservationRepository->save($reservation);
     }
 
-    public function accept(Reservation $reservation): bool
+    public function accept(Reservation $reservation, DateTimeImmutable $endAt): bool
     {
          if (!$this->capacityManager->isCapacityAvailable($reservation)) {
              return false;

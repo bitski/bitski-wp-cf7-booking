@@ -69,7 +69,7 @@ $conditional_class_map = [
 $integration_class_map = [
     'bitski-wp-cf7-booking/option/integration/cf7adapter/load' =>
         [
-            'class' => \BitskiWPCF7Booking\integration\CF7Adapter::class,
+            'class'        => \BitskiWPCF7Booking\integration\CF7Adapter::class,
             'dependencies' => [
                 \BitskiWPCF7Booking\application\BookingService::class,
                 \BitskiWPCF7Booking\integration\dev\MailGuard::class,
@@ -125,7 +125,7 @@ foreach ($conditional_class_map as $option_key => $class) {
  *
  * Adds dependencies to the class constructor if they are defined in the integration_class_map.
  * Allows simple manual dependency injection for classes that require specific dependencies,
- * including limited nested dependencies (e.g. BookingService requires a ReservationRepository).
+ * including manually wired nested dependencies (e.g. BookingService requires a CapacityManager which requires a ReservationRepository).
  *
  * Dependency wiring is handled centrally in the bootstrap.
  */
@@ -133,14 +133,16 @@ add_action('plugins_loaded', static function () use ($integration_class_map) {
     foreach ($integration_class_map as $option_key => $definition) {
         if (\BitskiWPCF7Booking\core\Options::get($option_key)) {
             try {
-                $class = $definition['class'];
-                $dependencies = $definition['dependencies'] ?? [];
+                $class                = $definition['class'];
+                $dependencies         = $definition['dependencies'] ?? [];
                 $dependency_instances = [];
 
                 foreach ($dependencies as $dependency) {
                     if ($dependency === \BitskiWPCF7Booking\application\BookingService::class) {
                         $reservation_repository = new \BitskiWPCF7Booking\infrastructure\ReservationRepository();
-                        $capacity_manager = new \BitskiWPCF7Booking\domain\CapacityManager():
+                        $capacity_manager       = new \BitskiWPCF7Booking\domain\CapacityManager(
+                            $reservation_repository
+                        );
 
                         $dependency_instances[] = new $dependency($reservation_repository, $capacity_manager);
 

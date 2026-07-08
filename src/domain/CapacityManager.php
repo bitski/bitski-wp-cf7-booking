@@ -8,11 +8,11 @@
 namespace BitskiWPCF7Booking\domain;
 
 use DateInterval;
+use DateTimeImmutable;
 use DateMalformedIntervalStringException;
 use DateMalformedStringException;
 
 use BitskiWPCF7Booking\infrastructure\ReservationRepository;
-use DateTimeImmutable;
 
 class CapacityManager
 {
@@ -24,15 +24,15 @@ class CapacityManager
     }
 
     /**
-     *
+     * Checks if the reservation is within the capacity limits.
      */
     public function isCapacityAvailable(Reservation $reservation, DateTimeImmutable $endAt): bool
     {
         $overlappingReservations = $this->findOverlappingReservations($reservation, $endAt);
 
-        $guestCountEvents = $this->createGuestCountEvents($overlappingReservations, $reservation, $endAt);
+        $guestCountEvents = $this->createGuestCountEvents($reservation, $endAt, $overlappingReservations);
 
-        $highestGuestCount = $this->calculateHighestGuestCount($guestCountEvents);
+        $highestGuestCount = $this->calculateHighestGuestCount($reservation, $endAt, $guestCountEvents);
 
         if ($highestGuestCount > 20) {
             return false;
@@ -42,7 +42,7 @@ class CapacityManager
     }
 
     /**
-     * Returns an array of overlapping reservations.
+     * Returns overlapping reservations.
      *
      * @throws DateMalformedStringException
      */
@@ -54,16 +54,26 @@ class CapacityManager
     }
 
     /**
+     * Returns guest count events sorted chronologically.
+     *
+     * Each event is an associative array with the following keys:
+     * - eventAt: The timestamp of the event.
+     * - guestCountChange: The change in guest count (positive for starting reservations, negative for ending reservations).
      *
      * @throws DateMalformedIntervalStringException
      */
     private function createGuestCountEvents(
-        array $overlappingReservations,
         Reservation $reservation,
-        DateTimeImmutable $endAt
+        DateTimeImmutable $endAt,
+        array $overlappingReservations
     ): array {
-        $startAt          = $reservation->getStartAt();
         $guestCountEvents = [];
+
+        $guestCountEvents[] = [
+            'eventAt'          => $reservation->getStartAt(),
+            'guestCountChange' => $reservation->getGuestCount()
+        ];
+        $guestCountEvents[] = ['eventAt' => $endAt, 'guestCountChange' => -$reservation->getGuestCount()];
 
         foreach ($overlappingReservations as $overlappingReservation) {
             $overlapStartAt   = $overlappingReservation->getStartAt();
@@ -106,12 +116,27 @@ class CapacityManager
     }
 
     /**
-     *
+     * Returns the highest guest count during the reservation interval.
      */
-    private function calculateHighestGuestCount(array $guestCountEvents): int
-    {
-        // TODO: Calculate highest guest count.
+    private function calculateHighestGuestCount(
+        Reservation $reservation,
+        DateTimeImmutable $endAt,
+        array $guestCountEvents
+    ): int {
+        $currentGuestCount = 0;
 
-        return 0;
+        foreach ($guestCountEvents as $key => $event) {
+            $currentGuestCount                    += $event['guestCountChange'];
+            $guestCountEvents[$key]['guestCount'] = $currentGuestCount;
+        }
+
+        $intervalGuestCountEvents = array_filter(
+            $guestCountEvents,
+            static function ($event) use ($reservation, $endAt) {
+                return ($event['eventAt'] >= $reservation->getStartAt() && $event['eventAt'] <= $endAt);
+            }
+        );
+
+        return max(array_column($intervalGuestCountEvents, 'guestCount'));
     }
 }

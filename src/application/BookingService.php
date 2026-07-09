@@ -8,8 +8,8 @@
 namespace BitskiWPCF7Booking\application;
 
 use DateInterval;
+use DateMalformedIntervalStringException;
 use DateTimeImmutable;
-use Exception;
 
 use BitskiWPCF7Booking\domain\CapacityManager;
 use BitskiWPCF7Booking\domain\Reservation;
@@ -32,7 +32,7 @@ class BookingService
     }
 
     /**
-     * @throws Exception
+     * @throws DateMalformedIntervalStringException
      */
     public function book(Reservation $reservation): bool
     {
@@ -47,9 +47,9 @@ class BookingService
 
     public function accept(Reservation $reservation, DateTimeImmutable $endAt): bool
     {
-         if (!$this->capacityManager->isCapacityAvailable($reservation)) {
-             return false;
-         }
+        if ( ! $this->capacityManager->isCapacityAvailable($reservation, $endAt)) {
+            return false;
+        }
 
         return true;
     }

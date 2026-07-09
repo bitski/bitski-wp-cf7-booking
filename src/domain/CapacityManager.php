@@ -93,14 +93,13 @@ class CapacityManager
          * ending reservations (-) are processed before starting reservations (+).
          */
         usort($guestCountEvents, static function ($a, $b) {
-            if ($a['eventAt'] < $b['eventAt']) {
-                return -1;
+            $result = $a['eventAt'] <=> $b['eventAt'];
+
+            if ($result !== 0) {
+                return $result;
             }
 
-            if ($a['eventAt'] > $b['eventAt']) {
-                return 1;
-            }
-
+            // Sorts departures before arrivals in case of equal timestamps.
             if ($a['guestCountChange'] < 0 && $b['guestCountChange'] > 0) {
                 return -1;
             }

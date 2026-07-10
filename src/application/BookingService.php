@@ -2,6 +2,8 @@
 /**
  * Booking service.
  *
+ * Handles booking logic.
+ *
  * @since 0.2.1
  */
 
@@ -23,15 +25,16 @@ class BookingService
     public function __construct(
         ReservationRepository $reservationRepository,
         CapacityManager $capacityManager
-    )
-    {
-        error_log('BookingService constructed with dependencies: '. get_class($reservationRepository));
+    ) {
+        error_log('BookingService constructed with dependencies: ' . get_class($reservationRepository));
 
         $this->reservationRepository = $reservationRepository;
-        $this->capacityManager = $capacityManager;
+        $this->capacityManager       = $capacityManager;
     }
 
     /**
+     * Books a reservation.
+     *
      * @throws DateMalformedIntervalStringException
      */
     public function book(Reservation $reservation): bool

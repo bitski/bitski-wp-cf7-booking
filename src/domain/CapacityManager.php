@@ -100,6 +100,7 @@ class CapacityManager
             }
 
             // Sorts departures before arrivals in case of equal timestamps.
+            // This implements boundary-exclusive interval logic for reservations.
             if ($a['guestCountChange'] < 0 && $b['guestCountChange'] > 0) {
                 return -1;
             }

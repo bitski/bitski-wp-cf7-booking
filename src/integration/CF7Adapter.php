@@ -75,8 +75,10 @@ class CF7Adapter extends Adapter
         $name  = $payload['your-name'] ?? '';
         $phone = $payload['your-telefon'] ?? '';
         $email = $payload['your-email'] ?? '';
+        $date  = $payload['your-datum'] ?? '';
+        $time  = $payload['your-zeit'] ?? '';
         try {
-            $startAt = new DateTimeImmutable($payload['your-datum']);
+            $startAt = new DateTimeImmutable($date . ' ' . $time);
         } catch (\Exception $e) {
             error_log($e->getMessage());
             throw new InvalidArgumentException('Invalid date format.');

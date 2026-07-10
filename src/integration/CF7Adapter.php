@@ -19,7 +19,7 @@ use BitskiWPCF7Booking\domain\Reservation;
 
 class CF7Adapter extends Adapter
 {
-    protected BookingService $bookingService;
+    private BookingService $bookingService;
 
     /**
      * Main class name of the external plugin or module required by this adapter.
@@ -48,30 +48,28 @@ class CF7Adapter extends Adapter
     /**
      * Handles the booking request before sending the email.
      *
+     * Sets the $abort reference parameter to true when the booking is not accepted.
+     * Prevents CF7 from sending the email.
+     *
      * @since 0.1.2
      */
-    public function handleBookingRequest($contactForm, bool &$abort, WPCF7_Submission $submission)
+    public function handleBookingRequest($contactForm, bool &$abort, WPCF7_Submission $submission): void
     {
-        error_log('Booking request received');
-        /**
-         * Retrieves the form submission data from the WPCF7_Submission singleton.
-         * Maps the CF7 form payload to a Reservation object and passes it to the BookingService.
-         */
         $payload     = $submission->get_posted_data();
         $reservation = $this->mapToReservation($payload);
 
-        return $this->bookingService->book($reservation);
+        if ($this->bookingService->book($reservation) === false) {
+            $abort = true;
+
+            // TODO: Add error message to the form.
+        }
     }
 
     /**
-     * Maps the CF7 form payload to a Reservation domain object.
-     * Ensures the Reservation object is correctly populated with form data.
+     * Maps CF7 payload to a Reservation object.
      */
     public function mapToReservation(array $payload): Reservation
     {
-        /**
-         * Maps the CF7 form payload data to Reservation domain object properties.
-         */
         $name  = $payload['your-name'] ?? '';
         $phone = $payload['your-telefon'] ?? '';
         $email = $payload['your-email'] ?? '';
@@ -81,7 +79,7 @@ class CF7Adapter extends Adapter
             $startAt = new DateTimeImmutable($date . ' ' . $time);
         } catch (\Exception $e) {
             error_log($e->getMessage());
-            throw new InvalidArgumentException('Invalid date format.');
+            throw new InvalidArgumentException('Invalid date format.', 0, $e);
         }
         $durationMinutes = 120;
         $guestCount      = isset($payload['your-personenzahl']) ? (int)$payload['your-personenzahl'] : 1;
@@ -95,9 +93,6 @@ class CF7Adapter extends Adapter
             $guestCount = 1;
         }
 
-        /**
-         * Creates a new Reservation object with the mapped data.
-         */
         return new Reservation(
             name: $name,
             phone: $phone,

@@ -48,8 +48,9 @@ class CF7Adapter extends Adapter
     /**
      * Handles the booking request before sending the email.
      *
-     * Sets the $abort reference parameter to true when the booking is not accepted.
-     * Prevents CF7 from sending the email.
+     * When the booking is not accepted:
+     * - Sets the $abort reference parameter to true, which prevents CF7 from sending the email.
+     * - Sets the appropriate response message in the submission object.
      *
      * @since 0.1.2
      */
@@ -61,7 +62,14 @@ class CF7Adapter extends Adapter
         if ($this->bookingService->book($reservation) === false) {
             $abort = true;
 
-            // TODO: Add error message to the form.
+            $responseMessage = sprintf(
+                'Vielen Dank für Ihre Reservierungsanfrage. Leider können wir für den gewünschten Termin am %s um %s Uhr für %d %s keine Reservierung mehr annehmen. Bitte versuchen Sie es mit einer anderen Uhrzeit oder an einem anderen Datum.',
+                $reservation->getStartAt()->format('d.m.Y'),
+                $reservation->getStartAt()->format('H:i'),
+                $reservation->getGuestCount(),
+                $reservation->getGuestCount() > 1 ? 'Personen' : 'Person'
+            );
+            $submission->set_response($responseMessage);
         }
     }
 

@@ -63,7 +63,7 @@ class CF7Adapter extends Adapter
             $abort = true;
 
             $responseMessage = sprintf(
-                'Vielen Dank für Ihre Reservierungsanfrage. Leider können wir für den gewünschten Termin am %s um %s Uhr für %d %s keine Reservierung mehr annehmen. Bitte versuchen Sie es mit einer anderen Uhrzeit oder an einem anderen Datum.',
+                'Leider sind für den gewünschten Termin am %s um %s Uhr für %d %s nicht mehr ausreichend viele Plätze in unserem Restaurant verfügbar. Bitte wählen Sie eine andere Uhrzeit oder ein anderes Datum.',
                 $reservation->getStartAt()->format('d.m.Y'),
                 $reservation->getStartAt()->format('H:i'),
                 $reservation->getGuestCount(),

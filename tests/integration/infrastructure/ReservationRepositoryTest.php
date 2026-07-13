@@ -56,7 +56,7 @@ class ReservationRepositoryTest extends TestCase
             $overlappingReservations,
             'Expected exactly 1 overlapping reservation' . print_r($overlappingReservations, true)
         );
-        $this->assertSame('john@example.com', $overlappingReservations[0]->email, 'Expected email to match');
+        $this->assertSame('john@example.com', $overlappingReservations[0]->getEmail(), 'Expected email to match');
     }
 
     public function testFindOverlappingReservationsReturnsNoOverlap(): void
@@ -77,6 +77,7 @@ class ReservationRepositoryTest extends TestCase
         $endAt   = new DateTimeImmutable('2027-08-01 20:30:00');
 
         $overlappingReservations = $this->reservationRepository->findOverlappingReservations($startAt, $endAt);
+
         $this->assertEmpty(
             $overlappingReservations,
             'Expected return of empty array if there is no overlapping reservation'
@@ -153,7 +154,7 @@ class ReservationRepositoryTest extends TestCase
 
         $overlappingReservations = $this->reservationRepository->findOverlappingReservations($startAt, $endAt);
         $emails                  = array_map(static function ($overlappingReservation) {
-            return $overlappingReservation->email;
+            return $overlappingReservation->getEmail();
         }, $overlappingReservations);
         $this->assertCount(
             2,

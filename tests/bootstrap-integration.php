@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin tests bootstrap.
+ * Plugin integration tests bootstrap.
  *
  * Loads the Composer autoloader.
  * Sets WordPress server variables for testing without a web request.

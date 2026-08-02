@@ -42,21 +42,45 @@ class CF7Adapter extends Adapter
      */
     protected function registerHooks(): void
     {
-        add_action('wpcf7_before_send_mail', [$this, 'handleBookingRequest'], 10, 3);
+        add_action(
+            'wpcf7_before_send_mail',
+            [$this, 'handleBookingRequest'],
+            10,
+            3,
+        );
     }
 
     /**
      * Handles the booking request before sending the email.
      *
-     * When the booking is not accepted:
+     * Workflow:
+     * - Validates incoming CF7 payload.
+     * - Maps valid payload data to a Reservation.
+     * - Delegates booking decision to BookingService.
+     *
+     * In case of invalid payloads or non-accepted bookings:
      * - Sets the $abort reference parameter to true, which prevents CF7 from sending the email.
      * - Sets the appropriate response message in the submission object.
      *
      * @since 0.1.2
      */
-    public function handleBookingRequest($contactForm, bool &$abort, WPCF7_Submission $submission): void
-    {
-        $payload     = $submission->get_posted_data();
+    public function handleBookingRequest(
+        $contactForm,
+        bool &$abort,
+        WPCF7_Submission $submission,
+    ): void {
+        $payload = $submission->get_posted_data();
+
+        if ( ! $this->validatePayload($payload)) {
+            $abort = true;
+
+            $responseMessage
+                = 'Leider konnten wir Ihre Reservierungsanfrage nicht verarbeiten. Bitte überprüfen Sie, ob Name, E-Mail-Adresse, Datum, Uhrzeit und Personenzahl korrekt ausgefüllt sind, und versuchen Sie es erneut.';
+            $submission->set_response($responseMessage);
+
+            return;
+        }
+
         $reservation = $this->mapToReservation($payload);
 
         if ($this->bookingService->book($reservation) === false) {
@@ -67,22 +91,89 @@ class CF7Adapter extends Adapter
                 $reservation->getStartAt()->format('d.m.Y'),
                 $reservation->getStartAt()->format('H:i'),
                 $reservation->getGuestCount(),
-                $reservation->getGuestCount() > 1 ? 'Personen' : 'Person'
+                $reservation->getGuestCount() > 1 ? 'Personen' : 'Person',
             );
             $submission->set_response($responseMessage);
         }
     }
 
     /**
-     * Maps CF7 payload to a Reservation object.
+     * Validates CF7 payload data before mapping.
+     *
+     * Performs boundary validation only.
+     * Does not contain booking business rules.
+     *
+     * @since
+     */
+    protected function validatePayload(array $payload): bool
+    {
+        if ( ! isset($payload['your-name'])
+            || trim($payload['your-name']) === ''
+        ) {
+            return false;
+        }
+
+        if ( ! isset($payload['your-email'])
+            ||
+            ! filter_var(
+                trim($payload['your-email']),
+                FILTER_VALIDATE_EMAIL,
+            )
+        ) {
+            return false;
+        }
+
+        if ( ! isset($payload['your-datum'])
+            || trim($payload['your-datum']) === ''
+        ) {
+            return false;
+        }
+
+        if (
+            ! isset($payload['your-zeit']) || trim($payload['your-zeit']) === ''
+        ) {
+            return false;
+        }
+
+        try {
+            new DateTimeImmutable(
+                trim($payload['your-datum']) . ' ' . trim(
+                    $payload['your-zeit'],
+                ),
+            );
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        if ( ! isset($payload['your-personenzahl'])) {
+            return false;
+        }
+
+        $guestCount = trim($payload['your-personenzahl']);
+
+        if (
+            $guestCount === ''
+            ||
+            ! ctype_digit($guestCount)
+            || (int)$guestCount < 1
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Maps validated CF7 payload data to a Reservation object.
      */
     public function mapToReservation(array $payload): Reservation
     {
-        $name  = $payload['your-name'] ?? '';
-        $phone = $payload['your-telefon'] ?? '';
-        $email = $payload['your-email'] ?? '';
-        $date  = $payload['your-datum'] ?? '';
-        $time  = $payload['your-zeit'] ?? '';
+        $name = trim($payload['your-name']);
+        $phone = trim($payload['your-telefon'] ?? '');
+        $email = trim($payload['your-email']);
+        $date = trim($payload['your-datum']);
+        $time = trim($payload['your-zeit']);
         try {
             $startAt = new DateTimeImmutable($date . ' ' . $time);
         } catch (\Exception $e) {
@@ -90,16 +181,8 @@ class CF7Adapter extends Adapter
             throw new InvalidArgumentException('Invalid date format.', 0, $e);
         }
         $durationMinutes = 120;
-        $guestCount      = isset($payload['your-personenzahl']) ? (int)$payload['your-personenzahl'] : 1;
-        $message         = $payload['your-res-comment'] ?? '';
-
-        /**
-         * CF7 boundary safety: enforces minimal valid guest count.
-         * No business rule, input sanitization only.
-         */
-        if ($guestCount <= 0) {
-            $guestCount = 1;
-        }
+        $guestCount      = (int)$payload['your-personenzahl'];
+        $message         = trim($payload['your-res-comment'] ?? '');
 
         return new Reservation(
             name: $name,
@@ -108,7 +191,7 @@ class CF7Adapter extends Adapter
             startAt: $startAt,
             durationMinutes: $durationMinutes,
             guestCount: $guestCount,
-            message: $message
+            message: $message,
         );
     }
 }

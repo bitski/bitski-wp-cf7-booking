@@ -103,7 +103,7 @@ class CF7Adapter extends Adapter
      * Performs boundary validation only.
      * Does not contain booking business rules.
      *
-     * @since
+     * @since 0.4.4
      */
     protected function validatePayload(array $payload): bool
     {

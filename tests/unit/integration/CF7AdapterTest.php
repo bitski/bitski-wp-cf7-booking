@@ -38,7 +38,7 @@ class CF7AdapterTest extends TestCase
         );
     }
 
-    public function testValidatePayloadRejectsEmptyName(): void
+    public function testHandleBookingRequestAbortsWhenEmptyName(): void
     {
         $abort          = false;
         $currentPayload = [
@@ -72,7 +72,7 @@ class CF7AdapterTest extends TestCase
         $this->assertTrue($abort);
     }
 
-    public function testValidatePayloadRejectsInvalidEmail(): void
+    public function testHandleBookingRequestAbortsWhenInvalidEmail(): void
     {
         $abort          = false;
         $currentPayload = [
@@ -106,7 +106,7 @@ class CF7AdapterTest extends TestCase
         $this->assertTrue($abort);
     }
 
-    public function testValidatePayloadRejectsInvalidDateTime(): void
+    public function testHandleBookingRequestAbortsWhenInvalidDateTime(): void
     {
         $abort          = false;
         $currentPayload = [
@@ -140,7 +140,7 @@ class CF7AdapterTest extends TestCase
         $this->assertTrue($abort);
     }
 
-    public function testValidatePayloadRejectsInvalidGuestCount(): void
+    public function testHandleBookingRequestAbortsWhenInvalidGuestCount(): void
     {
         $abort          = false;
         $currentPayload = [
@@ -174,7 +174,7 @@ class CF7AdapterTest extends TestCase
         $this->assertTrue($abort);
     }
 
-    public function testValidatePayloadAcceptsValidPayload(): void
+    public function testHandleBookingRequestDoesNotAbortWhenValidPayload(): void
     {
         $abort          = false;
         $currentPayload = [

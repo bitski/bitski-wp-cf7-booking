@@ -12,6 +12,8 @@ use BitskiWPCF7Booking\application\BookingService;
 use BitskiWPCF7Booking\domain\Reservation;
 use BitskiWPCF7Booking\integration\CF7Adapter;
 
+use BitskiWPCF7Booking\Tests\unit\integration\helpers\TestableCF7Adapter;
+
 class CF7AdapterTest extends TestCase
 {
     public function testMapToReservationReturnsReservation()
@@ -207,5 +209,30 @@ class CF7AdapterTest extends TestCase
         );
 
         $this->assertFalse($abort);
+    }
+
+    public function testSanitizePayloadRemovesUnsafeInput(): void
+    {
+        $currentPayload = [
+            'your-name'         => ' John Doe ',
+            'your-telefon'      => '123-456-7890',
+            'your-email'        => 'john@example.com',
+            'your-datum'        => '2026-08-01',
+            'your-zeit'         => '18:00',
+            'your-personenzahl' => '4',
+            'your-res-comment'  => 'message content',
+        ];
+
+        $mockBookingService = $this->createMock(BookingService::class);
+
+        $cf7Adapter = new TestableCF7Adapter($mockBookingService);
+
+        $sanitizedPayload = $cf7Adapter->sanitizePayloadForTest($currentPayload);
+
+        $this->assertSame(
+            'John Doe',
+            $sanitizedPayload['your-name'],
+            'Expected name to be sanitized'
+        );
     }
 }

@@ -81,6 +81,8 @@ class CF7Adapter extends Adapter
             return;
         }
 
+        $payload = $this->sanitizePayload($payload);
+
         $reservation = $this->mapToReservation($payload);
 
         if ($this->bookingService->book($reservation) === false) {
@@ -163,17 +165,35 @@ class CF7Adapter extends Adapter
         return true;
     }
 
+    /**
+     * Sanitizes CF7 validated payload data before mapping.
+     *
+     * @since 0.4.5
+     */
+    protected function sanitizePayload(array $payload): array
+    {
+        $payload['your-name'] = sanitize_text_field($payload['your-name']);
+        $payload['your-telefon'] = sanitize_text_field($payload['your-telefon'] ?? '');
+        $payload['your-email'] = sanitize_email($payload['your-email']);
+        $payload['your-datum'] = sanitize_text_field($payload['your-datum']);
+        $payload['your-zeit'] = sanitize_text_field($payload['your-zeit']);
+        $payload['your-personenzahl'] = sanitize_text_field($payload['your-personenzahl']);
+        $payload['your-res-comment'] = sanitize_textarea_field($payload['your-res-comment'] ?? '');
+
+        return $payload;
+    }
+
 
     /**
-     * Maps validated CF7 payload data to a Reservation object.
+     * Maps validated and sanitized CF7 payload data to a Reservation object.
      */
     public function mapToReservation(array $payload): Reservation
     {
-        $name = trim($payload['your-name']);
-        $phone = trim($payload['your-telefon'] ?? '');
-        $email = trim($payload['your-email']);
-        $date = trim($payload['your-datum']);
-        $time = trim($payload['your-zeit']);
+        $name = $payload['your-name'];
+        $phone = $payload['your-telefon'];
+        $email = $payload['your-email'];
+        $date = $payload['your-datum'];
+        $time = $payload['your-zeit'];
         try {
             $startAt = new DateTimeImmutable($date . ' ' . $time);
         } catch (\Exception $e) {
@@ -182,7 +202,7 @@ class CF7Adapter extends Adapter
         }
         $durationMinutes = 120;
         $guestCount      = (int)$payload['your-personenzahl'];
-        $message         = trim($payload['your-res-comment'] ?? '');
+        $message         = $payload['your-res-comment'];
 
         return new Reservation(
             name: $name,

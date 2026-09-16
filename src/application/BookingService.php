@@ -41,19 +41,10 @@ class BookingService
     {
         $endAt = $reservation->getStartAt()->add(new DateInterval('PT' . $reservation->getDurationMinutes() . 'M'));
 
-        if ( ! $this->accept($reservation, $endAt)) {
-            return false;
-        }
-
-        return $this->reservationRepository->save($reservation);
-    }
-
-    public function accept(Reservation $reservation, DateTimeImmutable $endAt): bool
-    {
         if ( ! $this->capacityManager->isCapacityAvailable($reservation, $endAt)) {
             return false;
         }
 
-        return true;
+        return $this->reservationRepository->save($reservation);
     }
 }
